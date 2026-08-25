@@ -222,7 +222,7 @@ export default function TeacherReportsPage() {
     if (!manualForm.session_id || !manualForm.student_id) return;
     setIsSubmitting(true);
     try {
-      const now = new Date().toLocaleTimeString('en-GB', { hour12: false });
+      const now = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Makassar', hour12: false });
       const { error } = await supabase.from('attendances').insert([{
         session_id: manualForm.session_id,
         student_id: manualForm.student_id,
