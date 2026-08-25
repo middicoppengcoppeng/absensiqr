@@ -27,11 +27,37 @@ export async function POST(request: Request) {
 
     const student = tokenData.students as any;
 
-    // For MVP: if session_id is provided, use it. Otherwise, look for an active session for the student's class
+    // Fetch the session to validate class match and get late_after time
     let activeSessionId = session_id;
     let lateAfter = '07:15:00';
-    
-    if (!activeSessionId) {
+
+    if (activeSessionId) {
+      // session_id explicitly provided — fetch it and verify student's class matches
+      const { data: sessionData, error: sessionError } = await supabase
+        .from('attendance_sessions')
+        .select('id, late_after, class_id, status')
+        .eq('id', activeSessionId)
+        .single();
+
+      if (sessionError || !sessionData) {
+        return NextResponse.json({ success: false, message: 'Sesi tidak ditemukan.' }, { status: 404 });
+      }
+
+      if (sessionData.status !== 'ACTIVE') {
+        return NextResponse.json({ success: false, message: 'Sesi ini sudah tidak aktif.' }, { status: 400 });
+      }
+
+      // ✅ Validasi: kelas siswa harus sama dengan kelas sesi
+      if (sessionData.class_id !== student.class_id) {
+        return NextResponse.json({
+          success: false,
+          message: `Siswa ini bukan anggota kelas sesi ini. Absensi ditolak.`
+        }, { status: 403 });
+      }
+
+      lateAfter = sessionData.late_after;
+    } else {
+      // No session_id — auto-find active session for the student's own class
       const { data: sessionData } = await supabase
         .from('attendance_sessions')
         .select('id, late_after')
@@ -40,7 +66,7 @@ export async function POST(request: Request) {
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
-        
+
       if (!sessionData) {
         return NextResponse.json({ success: false, message: 'Tidak ada sesi absensi aktif untuk kelas ini.' }, { status: 400 });
       }
