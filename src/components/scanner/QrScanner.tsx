@@ -5,10 +5,9 @@ import { Html5Qrcode } from 'html5-qrcode';
 
 interface QrScannerProps {
   onScanSuccess: (decodedText: string) => void;
-  onScanError?: (errorMessage: string) => void;
 }
 
-export default function QrScanner({ onScanSuccess, onScanError }: QrScannerProps) {
+export default function QrScanner({ onScanSuccess }: QrScannerProps) {
   const [status, setStatus] = useState<'loading' | 'active' | 'error'>('loading');
   const [errorMsg, setErrorMsg] = useState('');
   const isMounted = useRef(false);
