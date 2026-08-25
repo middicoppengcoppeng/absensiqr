@@ -9,6 +9,7 @@ interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   type?: 'danger' | 'warning';
+  isAlert?: boolean;
 }
 
 export default function ConfirmModal({
@@ -19,7 +20,8 @@ export default function ConfirmModal({
   message,
   confirmText = 'Hapus',
   cancelText = 'Batal',
-  type = 'danger'
+  type = 'danger',
+  isAlert = false
 }: ConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -36,12 +38,14 @@ export default function ConfirmModal({
           <p className="text-sm text-slate-500 mb-6">{message}</p>
           
           <div className="flex gap-3 w-full">
-            <button 
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors"
-            >
-              {cancelText}
-            </button>
+            {!isAlert && (
+              <button 
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors"
+              >
+                {cancelText}
+              </button>
+            )}
             <button 
               onClick={() => {
                 onConfirm();
