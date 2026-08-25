@@ -83,11 +83,35 @@ export default function ScannerPage() {
     setSessionLoading(true);
     const today = new Date().toISOString().split('T')[0];
 
+    // Get current logged-in teacher
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setSessionLoading(false);
+      return;
+    }
+
+    // Get only classes where this teacher is the homeroom teacher
+    const { data: myClasses } = await supabase
+      .from('classes')
+      .select('id')
+      .eq('homeroom_teacher_id', user.id);
+
+    const myClassIds = myClasses?.map(c => c.id) || [];
+
+    if (myClassIds.length === 0) {
+      setSessions([]);
+      setSelectedSessionId('');
+      setSessionLoading(false);
+      return;
+    }
+
+    // Fetch active sessions only for this teacher's classes
     const { data, error } = await supabase
       .from('attendance_sessions')
       .select('*, classes(name)')
       .eq('status', 'ACTIVE')
       .eq('attendance_date', today)
+      .in('class_id', myClassIds)
       .order('created_at', { ascending: false });
 
     if (!error && data && data.length > 0) {
