@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     // 3. Determine Status (HADIR or TERLAMBAT) based on current time
     // For simplicity, we just use JS Date for current time. In production, use DB time.
     const now = new Date();
-    const currentTimeStr = now.toLocaleTimeString('en-GB', { hour12: false }); // "HH:MM:SS"
+    const currentTimeStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Makassar', hour12: false }); // "HH:MM:SS"
     const isLate = currentTimeStr > lateAfter;
     const attStatus = isLate ? 'TERLAMBAT' : 'HADIR';
 
