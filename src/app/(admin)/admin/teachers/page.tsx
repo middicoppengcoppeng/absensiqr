@@ -5,6 +5,7 @@ import Header from '@/components/ui/Header';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { supabase } from '@/lib/supabase';
 import { Plus, Search, X, Eye, EyeOff, Trash2, Pencil, KeyRound } from 'lucide-react';
+import { useConfirm } from '@/hooks/useConfirm';
 
 interface Teacher {
   id: string;
@@ -43,6 +44,8 @@ export default function TeachersPage() {
   const [resetPassword, setResetPassword] = useState('');
   const [resetSuccess, setResetSuccess] = useState<string | null>(null);
   const [resetError, setResetError] = useState<string | null>(null);
+
+  const { showAlert, ConfirmElement } = useConfirm();
 
   useEffect(() => {
     fetchData();
@@ -89,7 +92,7 @@ export default function TeachersPage() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert('Gagal menghapus guru.');
+      showAlert('Error', 'Gagal menghapus guru.');
     } finally {
       setTeacherToDelete(null);
     }
@@ -549,6 +552,7 @@ export default function TeachersPage() {
         confirmText="Hapus Guru"
         type="danger"
       />
+      {ConfirmElement}
     </>
   );
 }

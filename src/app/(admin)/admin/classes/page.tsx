@@ -5,6 +5,7 @@ import Header from '@/components/ui/Header';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { supabase } from '@/lib/supabase';
 import { Plus, Search, X, Trash2, Pencil } from 'lucide-react';
+import { useConfirm } from '@/hooks/useConfirm';
 
 interface Class {
   id: string;
@@ -25,6 +26,8 @@ export default function ClassesPage() {
 
   const [classToDelete, setClassToDelete] = useState<{id: string, name: string} | null>(null);
 
+  const { showAlert, ConfirmElement } = useConfirm();
+
   useEffect(() => {
     fetchClasses();
   }, []);
@@ -43,7 +46,7 @@ export default function ClassesPage() {
     setIsSubmitting(false);
     
     if (error) {
-      alert('Gagal menambahkan kelas.');
+      showAlert('Error', 'Gagal menambahkan kelas.');
     } else {
       setFormData({ name: '', grade_level: '' });
       setIsAddModalOpen(false);
@@ -69,7 +72,7 @@ export default function ClassesPage() {
       fetchClasses();
     } catch (err) {
       console.error(err);
-      alert('Gagal memperbarui kelas.');
+      showAlert('Error', 'Gagal memperbarui kelas.');
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +86,7 @@ export default function ClassesPage() {
       fetchClasses();
     } catch (err) {
       console.error(err);
-      alert('Gagal menghapus kelas.');
+      showAlert('Error', 'Gagal menghapus kelas.');
     } finally {
       setClassToDelete(null);
     }
@@ -218,6 +221,7 @@ export default function ClassesPage() {
         confirmText="Hapus Kelas"
         type="danger"
       />
+      {ConfirmElement}
     </>
   );
 }

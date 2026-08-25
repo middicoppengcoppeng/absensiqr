@@ -5,6 +5,7 @@ import Header from '@/components/ui/Header';
 import { supabase } from '@/lib/supabase';
 import { Download, Users, ClipboardList, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { useConfirm } from '@/hooks/useConfirm';
 
 interface ClassData {
   id: string;
@@ -55,6 +56,8 @@ export default function TeacherReportsPage() {
     status: 'IZIN',
     notes: '',
   });
+
+  const { showAlert, ConfirmElement } = useConfirm();
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -214,7 +217,7 @@ export default function TeacherReportsPage() {
       fetchRecords();
     } catch (err) {
       console.error(err);
-      alert('Gagal menyimpan absensi manual.');
+      showAlert('Error', 'Gagal menyimpan absensi manual.');
     } finally {
       setIsSubmitting(false);
     }
@@ -513,6 +516,8 @@ export default function TeacherReportsPage() {
           </div>
         </div>
       )}
+      
+      {ConfirmElement}
     </>
   );
 }

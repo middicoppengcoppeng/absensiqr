@@ -5,6 +5,7 @@ import Header from '@/components/ui/Header';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { supabase } from '@/lib/supabase';
 import { Plus, X, PowerOff, Play, Trash2, Zap } from 'lucide-react';
+import { useConfirm } from '@/hooks/useConfirm';
 
 interface Session {
   id: string;
@@ -33,6 +34,7 @@ export default function TeacherSessionsPage() {
 
   const [sessionToToggle, setSessionToToggle] = useState<{id: string, status: string, newStatus: string} | null>(null);
   const [quickMessage, setQuickMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
+  const { confirm, showAlert, ConfirmElement } = useConfirm();
 
   useEffect(() => {
     fetchData();
@@ -141,27 +143,31 @@ export default function TeacherSessionsPage() {
       fetchData();
     } catch (err) {
       console.error(err);
-      alert('Gagal mengubah status sesi.');
+      showAlert('Error', 'Gagal mengubah status sesi.');
     } finally {
       setSessionToToggle(null);
     }
   };
 
   const handleDeleteSession = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus sesi ini? Semua data absensi terkait juga akan ikut terhapus.')) return;
-    
-    try {
-      const { error: attError } = await supabase.from('attendances').delete().eq('session_id', id);
-      if (attError) throw attError;
+    confirm(
+      'Hapus Sesi',
+      'Apakah Anda yakin ingin menghapus sesi ini? Semua data absensi terkait juga akan ikut terhapus.',
+      async () => {
+        try {
+          const { error: attError } = await supabase.from('attendances').delete().eq('session_id', id);
+          if (attError) throw attError;
 
-      const { error: sessError } = await supabase.from('attendance_sessions').delete().eq('id', id);
-      if (sessError) throw sessError;
+          const { error: sessError } = await supabase.from('attendance_sessions').delete().eq('id', id);
+          if (sessError) throw sessError;
 
-      fetchData();
-    } catch (err) {
-      console.error(err);
-      alert('Gagal menghapus sesi.');
-    }
+          fetchData();
+        } catch (err) {
+          console.error(err);
+          showAlert('Error', 'Gagal menghapus sesi.');
+        }
+      }
+    );
   };
 
   return (
@@ -303,6 +309,7 @@ export default function TeacherSessionsPage() {
         confirmText={sessionToToggle?.newStatus === 'ACTIVE' ? 'Aktifkan' : 'Nonaktifkan'}
         type={sessionToToggle?.newStatus === 'ACTIVE' ? 'warning' : 'danger'}
       />
+      {ConfirmElement}
     </>
   );
 }

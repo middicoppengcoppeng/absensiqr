@@ -5,6 +5,7 @@ import Header from '@/components/ui/Header';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { supabase } from '@/lib/supabase';
 import { Plus, Search, QrCode, X, Printer, Pencil, Trash2 } from 'lucide-react';
+import { useConfirm } from '@/hooks/useConfirm';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface Student {
@@ -54,6 +55,8 @@ export default function StudentsPage() {
 
   const [studentToDelete, setStudentToDelete] = useState<{id: string, name: string} | null>(null);
 
+  const { showAlert, ConfirmElement } = useConfirm();
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -89,7 +92,7 @@ export default function StudentsPage() {
       await fetchData();
     } catch (err) {
       console.error(err);
-      alert('Gagal menghapus siswa.');
+      showAlert('Error', 'Gagal menghapus siswa.');
     } finally {
       setStudentToDelete(null);
     }
@@ -140,7 +143,7 @@ export default function StudentsPage() {
 
     } catch (err) {
       console.error('Error adding student:', err);
-      alert('Gagal menambahkan siswa. Pastikan NIS unik.');
+      showAlert('Error', 'Gagal menambahkan siswa. Pastikan NIS unik.');
     } finally {
       setIsSubmitting(false);
     }
@@ -164,7 +167,7 @@ export default function StudentsPage() {
       await fetchData();
     } catch (err) {
       console.error(err);
-      alert('Gagal memperbarui data siswa.');
+      showAlert('Error', 'Gagal memperbarui data siswa.');
     } finally {
       setIsSubmitting(false);
     }
@@ -176,7 +179,7 @@ export default function StudentsPage() {
       setSelectedStudent(student);
       setIsQrModalOpen(true);
     } else {
-      alert('Siswa ini belum memiliki QR Code.');
+      showAlert('Peringatan', 'Siswa ini belum memiliki QR Code.');
     }
   };
 
@@ -561,6 +564,7 @@ export default function StudentsPage() {
         confirmText="Hapus Siswa"
         type="danger"
       />
+      {ConfirmElement}
     </>
   );
 }
